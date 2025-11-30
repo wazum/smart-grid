@@ -1,0 +1,97 @@
+/**
+ * SmartGrid component styles.
+ *
+ * Uses CSS custom properties for all styling configuration.
+ * The JavaScript component sets --computed-columns for auto balance mode.
+ *
+ * CSS-Tricks technique for auto-fill with max columns:
+ * https://css-tricks.com/an-auto-filling-css-grid-with-max-columns/
+ */
+
+smart-grid {
+  display: grid;
+  row-gap: var(--smart-grid-row-gap, var(--smart-grid-gap, 1rem));
+  column-gap: var(--smart-grid-column-gap, var(--smart-grid-gap, 1rem));
+  container-type: inline-size;
+
+  // Auto balance mode (default): JS sets --computed-columns
+  // Two sub-modes:
+  // 1. Simple mode: --grid-columns not set, uses CSS auto-fit/auto-fill
+  // 2. Smart mode: --grid-columns set, uses fixed grid with JS-applied spans
+  &:not([balance="expand"]):not([balance="preserve"]) {
+    --gap-count: calc(var(--computed-columns, 3) - 1);
+    --total-gap: calc(var(--gap-count) * var(--smart-grid-column-gap, var(--smart-grid-gap, 1rem)));
+    --item-max-width: calc((100% - var(--total-gap)) / var(--computed-columns, 3));
+
+    // Smart distribution mode: JS sets --grid-columns, items have grid-column spans
+    // Still enforce minimum width per grid column unit
+    &[data-grid-mode="fixed"] {
+      --min-col-width: calc(var(--smart-grid-min-width, 200px) / var(--computed-columns, 3));
+      grid-template-columns: repeat(var(--grid-columns), minmax(var(--min-col-width), 1fr));
+    }
+
+    // Simple mode (no --grid-columns): use responsive auto-fit/auto-fill
+    &:not([data-grid-mode="fixed"]):not([data-layout="single"]) {
+      // orphans="expand" (default): Orphan items expand to fill the row
+      &:not([orphans="fixed"]) {
+        grid-template-columns: repeat(
+          auto-fit,
+          minmax(max(var(--smart-grid-min-width, 200px), var(--item-max-width)), 1fr)
+        );
+      }
+
+      // orphans="fixed": Orphan items keep fixed width (same as full rows)
+      &[orphans="fixed"] {
+        grid-template-columns: repeat(
+          auto-fill,
+          minmax(max(var(--smart-grid-min-width, 200px), var(--item-max-width)), 1fr)
+        );
+      }
+    }
+
+    // Responsive: single column mode (JS sets data-layout="single")
+    &[data-layout="single"] {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  // Expand and Preserve modes: JS handles orphan spanning via --grid-columns
+  &[balance="expand"],
+  &[balance="preserve"] {
+    // When JS sets --grid-columns, use fixed grid with spans
+    &[data-grid-mode="fixed"] {
+      grid-template-columns: repeat(var(--grid-columns), 1fr);
+    }
+
+    // Fallback when no orphans (perfect fit): use simple max-columns grid
+    &:not([data-grid-mode="fixed"]) {
+      grid-template-columns: repeat(var(--max-columns, 3), 1fr);
+    }
+  }
+
+  // Item sizing via data-size attribute (valid HTML5)
+  > * {
+    min-width: 0; // Prevent grid blowout
+
+    &[data-size="small"] {
+      grid-column: span var(--smart-grid-size-small, 1);
+    }
+
+    &[data-size="medium"] {
+      grid-column: span var(--smart-grid-size-medium, 2);
+    }
+
+    &[data-size="large"] {
+      grid-column: span var(--smart-grid-size-large, 3);
+    }
+
+    // Numeric sizes (direct span)
+    &[data-size="1"] { grid-column: span 1; }
+    &[data-size="2"] { grid-column: span 2; }
+    &[data-size="3"] { grid-column: span 3; }
+    &[data-size="4"] { grid-column: span 4; }
+    &[data-size="5"] { grid-column: span 5; }
+    &[data-size="6"] { grid-column: span 6; }
+  }
+
+}

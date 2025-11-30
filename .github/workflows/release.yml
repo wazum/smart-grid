@@ -1,0 +1,40 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+
+      - name: Create release archive
+        run: |
+          mkdir -p release
+          cp dist/smart-grid.js release/
+          cp dist/smart-grid.css release/
+          cp dist/smart-grid.d.ts release/
+          cp README.md release/
+          cp LICENSE release/ 2>/dev/null || echo "MIT" > release/LICENSE
+          cd release && zip -r ../smart-grid-${{ github.ref_name }}.zip .
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: smart-grid-${{ github.ref_name }}.zip
+          generate_release_notes: true

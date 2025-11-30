@@ -1,0 +1,53 @@
+{
+  "name": "@wazum/smart-grid",
+  "version": "0.0.1",
+  "description": "Smart CSS Grid web component with auto-rebalancing",
+  "author": "Wolfgang Klinger <wolfgang@wazum.com>",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/smart-grid.js",
+  "types": "dist/smart-grid.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/smart-grid.js",
+      "types": "./dist/smart-grid.d.ts"
+    },
+    "./styles": "./dist/smart-grid.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && tsc --emitDeclarationOnly",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src --ext .ts"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^2.1.8",
+    "jsdom": "^25.0.1",
+    "resize-observer-polyfill": "^1.5.1",
+    "sass": "^1.83.0",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5",
+    "vitest": "^2.1.8"
+  },
+  "keywords": [
+    "web-component",
+    "css-grid",
+    "layout",
+    "responsive",
+    "grid",
+    "rebalancing"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wazum/smart-grid"
+  },
+  "bugs": {
+    "url": "https://github.com/wazum/smart-grid/issues"
+  },
+  "homepage": "https://github.com/wazum/smart-grid#readme"
+}
