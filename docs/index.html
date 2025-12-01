@@ -1,0 +1,732 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartGrid Demo</title>
+    <link rel="stylesheet" href="dist/smart-grid.css">
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: system-ui, sans-serif;
+            margin: 0;
+            padding: 2rem;
+            line-height: 1.5;
+            background: #f8fafc;
+            color: #1e293b;
+            max-width: 900px;
+            margin-inline: auto;
+        }
+
+        h1 {
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 2rem;
+        }
+
+        section {
+            margin-bottom: 3rem;
+        }
+
+        h2 {
+            font-size: 1rem;
+            color: #475569;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .toggle {
+            display: inline-flex;
+            background: #e2e8f0;
+            border-radius: 6px;
+            padding: 2px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .toggle button {
+            border: none;
+            background: transparent;
+            padding: 0.375rem 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #64748b;
+            transition: all 0.15s;
+        }
+
+        .toggle button[aria-selected="true"] {
+            background: #fff;
+            color: #0f172a;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .toggle button:hover:not([aria-selected="true"]) {
+            color: #334155;
+        }
+
+        .toggle button:focus-visible {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+        }
+
+        .demo-grid {
+            --smart-grid-gap: 0.75rem;
+        }
+
+        .plain-grid {
+            display: grid;
+            gap: 0.75rem;
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .plain-grid[data-columns="4"] {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .card {
+            background: #e2e8f0;
+            padding: 1.25rem;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 500;
+            color: #334155;
+        }
+
+        .card.rebalanced {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .card.orphan {
+            background: #fef3c7;
+            color: #92400e;
+            border: 2px dashed #f59e0b;
+        }
+
+        .info {
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-bottom: 1rem;
+        }
+
+        code {
+            background: #e2e8f0;
+            padding: 0.125rem 0.375rem;
+            border-radius: 4px;
+            font-size: 0.875em;
+        }
+
+        footer {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+            color: #94a3b8;
+            font-size: 0.875rem;
+        }
+
+        footer a { color: #3b82f6; }
+
+        [hidden] { display: none !important; }
+
+        /* Playground styles */
+        .playground {
+            background: #fff;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .playground h2 {
+            margin-top: 0;
+        }
+
+        .playground-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            padding: 1.25rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .control-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem 2.5rem;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            min-width: 140px;
+        }
+
+        .control-group label {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .control-group output {
+            font-family: ui-monospace, monospace;
+            font-size: 0.8125rem;
+            color: #0f172a;
+            font-weight: 700;
+            background: #e2e8f0;
+            padding: 0.125rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #3b82f6;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 2px 6px rgba(59, 130, 246, 0.4);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: #3b82f6;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        input[type="range"]:focus::-webkit-slider-thumb {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+
+        .playground-grid .card {
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.1s, background-color 0.15s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80px;
+        }
+
+        .playground-grid .card:hover {
+            filter: brightness(0.95);
+        }
+
+        .playground-grid .card:active {
+            transform: scale(0.95);
+        }
+
+        .playground-grid .card .item-num {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .playground-grid .card .item-size {
+            font-size: 0.6875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            opacity: 0.7;
+            margin-top: 0.25rem;
+        }
+
+        .playground-grid .card[data-size="medium"] {
+            background: #cbd5e1;
+        }
+
+        .playground-grid .card[data-size="large"] {
+            background: #94a3b8;
+            color: #1e293b;
+        }
+
+        @media (max-width: 600px) {
+            .control-row {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .control-group {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main>
+    <h1>SmartGrid</h1>
+    <p class="subtitle">Auto-rebalancing CSS Grid to avoid orphan items.</p>
+
+    <!-- Example 1: 4 items -->
+    <section>
+        <h2>
+            4 items, 3 columns
+            <span class="toggle" role="tablist" data-target="demo1">
+                <button role="tab" aria-selected="true" aria-controls="demo1-plain" data-mode="plain">Plain</button>
+                <button role="tab" aria-selected="false" aria-controls="demo1-smart" data-mode="smart">Smart</button>
+            </span>
+        </h2>
+        <p class="info">
+            Plain: <code>3 + 1</code> (orphan) →
+            Smart: <code>2 + 2</code> (balanced)
+        </p>
+
+        <smart-grid id="demo1-smart" columns="3" class="demo-grid" hidden>
+            <div class="card rebalanced">1</div>
+            <div class="card rebalanced">2</div>
+            <div class="card rebalanced">3</div>
+            <div class="card rebalanced">4</div>
+        </smart-grid>
+
+        <div id="demo1-plain" class="plain-grid">
+            <div class="card">1</div>
+            <div class="card">2</div>
+            <div class="card">3</div>
+            <div class="card orphan">4</div>
+        </div>
+    </section>
+
+    <!-- Example 2: 5 items -->
+    <section>
+        <h2>
+            5 items, 3 columns
+            <span class="toggle" role="tablist" data-target="demo2">
+                <button role="tab" aria-selected="true" aria-controls="demo2-plain" data-mode="plain">Plain</button>
+                <button role="tab" aria-selected="false" aria-controls="demo2-smart" data-mode="smart">Smart</button>
+            </span>
+        </h2>
+        <p class="info">
+            <code>3 + 2</code> — no redistribution needed, but last row items expand to fill
+        </p>
+
+        <smart-grid id="demo2-smart" columns="3" class="demo-grid" hidden>
+            <div class="card">1</div>
+            <div class="card">2</div>
+            <div class="card">3</div>
+            <div class="card rebalanced">4</div>
+            <div class="card rebalanced">5</div>
+        </smart-grid>
+
+        <div id="demo2-plain" class="plain-grid">
+            <div class="card">1</div>
+            <div class="card">2</div>
+            <div class="card">3</div>
+            <div class="card">4</div>
+            <div class="card">5</div>
+        </div>
+    </section>
+
+    <!-- Example 3: 7 items -->
+    <section>
+        <h2>
+            7 items, 3 columns
+            <span class="toggle" role="tablist" data-target="demo3">
+                <button role="tab" aria-selected="true" aria-controls="demo3-plain" data-mode="plain">Plain</button>
+                <button role="tab" aria-selected="false" aria-controls="demo3-smart" data-mode="smart">Smart</button>
+            </span>
+        </h2>
+        <p class="info">
+            Plain: <code>3 + 3 + 1</code> (orphan) →
+            Smart: <code>3 + 2 + 2</code> (balanced)
+        </p>
+
+        <smart-grid id="demo3-smart" columns="3" class="demo-grid" hidden>
+            <div class="card">1</div>
+            <div class="card">2</div>
+            <div class="card">3</div>
+            <div class="card rebalanced">4</div>
+            <div class="card rebalanced">5</div>
+            <div class="card rebalanced">6</div>
+            <div class="card rebalanced">7</div>
+        </smart-grid>
+
+        <div id="demo3-plain" class="plain-grid">
+            <div class="card">1</div>
+            <div class="card">2</div>
+            <div class="card">3</div>
+            <div class="card">4</div>
+            <div class="card">5</div>
+            <div class="card">6</div>
+            <div class="card orphan">7</div>
+        </div>
+    </section>
+
+    <!-- Example 4: Item sizes -->
+    <section>
+        <h2>
+            Item sizes
+            <span class="toggle" role="tablist" data-target="demo4">
+                <button role="tab" aria-selected="true" aria-controls="demo4-uniform" data-mode="uniform">Uniform</button>
+                <button role="tab" aria-selected="false" aria-controls="demo4-mixed" data-mode="mixed">Mixed</button>
+            </span>
+        </h2>
+        <p class="info">
+            <code>data-size="small"</code> (1 unit), <code>medium</code> (2 units), <code>large</code> (3 units)
+        </p>
+
+        <smart-grid id="demo4-uniform" columns="3" class="demo-grid">
+            <div class="card">1</div>
+            <div class="card">2</div>
+            <div class="card">3</div>
+            <div class="card rebalanced">4</div>
+            <div class="card rebalanced">5</div>
+        </smart-grid>
+
+        <smart-grid id="demo4-mixed" columns="4" class="demo-grid" style="--smart-grid-min-width: 100px; --smart-grid-min-width-medium: 250px; --smart-grid-min-width-large: 450px;" hidden>
+            <div class="card" data-size="large" style="background: #94a3b8; color: #1e293b;">Large (3)</div>
+            <div class="card" data-size="small">Small (1)</div>
+            <div class="card" data-size="medium" style="background: #cbd5e1; color: #1e293b;">Medium (2)</div>
+            <div class="card" data-size="medium" style="background: #cbd5e1; color: #1e293b;">Medium (2)</div>
+            <div class="card" data-size="small">Small (1)</div>
+            <div class="card" data-size="small">Small (1)</div>
+            <div class="card" data-size="small">Small (1)</div>
+            <div class="card" data-size="small">Small (1)</div>
+        </smart-grid>
+    </section>
+
+    <!-- Example 5: Fill mode comparison -->
+    <section>
+        <h2>
+            fill modes
+            <span class="toggle" role="tablist" data-target="demo5">
+                <button role="tab" aria-selected="true" aria-controls="demo5-expand" data-mode="expand">Equal-extra</button>
+                <button role="tab" aria-selected="false" aria-controls="demo5-none" data-mode="none">None</button>
+            </span>
+        </h2>
+        <p class="info">
+            <code>fill="equal-extra"</code> (default): items expand to fill row —
+            <code>fill="none"</code>: items keep original width
+        </p>
+
+        <smart-grid id="demo5-expand" columns="3" class="demo-grid">
+            <div class="card">1</div>
+            <div class="card">2</div>
+            <div class="card">3</div>
+            <div class="card rebalanced">4</div>
+            <div class="card rebalanced">5</div>
+            <div class="card rebalanced">6</div>
+            <div class="card rebalanced">7</div>
+        </smart-grid>
+
+        <smart-grid id="demo5-none" columns="3" fill="none" class="demo-grid" hidden>
+            <div class="card">1</div>
+            <div class="card">2</div>
+            <div class="card">3</div>
+            <div class="card">4</div>
+            <div class="card">5</div>
+            <div class="card">6</div>
+            <div class="card">7</div>
+        </smart-grid>
+    </section>
+
+    <!-- Example 6: fill-last override -->
+    <section>
+        <h2>
+            fill-last
+            <span class="toggle" role="tablist" data-target="demo6">
+                <button role="tab" aria-selected="true" aria-controls="demo6-expand" data-mode="expand">All expand</button>
+                <button role="tab" aria-selected="false" aria-controls="demo6-none" data-mode="none">Last fixed</button>
+            </span>
+        </h2>
+        <p class="info">
+            <code>fill-last="none"</code> — middle rows expand, last row keeps same width as full row
+        </p>
+
+        <smart-grid id="demo6-expand" columns="3" class="demo-grid">
+            <div class="card">1</div>
+            <div class="card">2</div>
+            <div class="card">3</div>
+            <div class="card rebalanced">4</div>
+            <div class="card rebalanced">5</div>
+            <div class="card rebalanced">6</div>
+            <div class="card rebalanced">7</div>
+        </smart-grid>
+
+        <smart-grid id="demo6-none" columns="3" fill-last="none" class="demo-grid" hidden>
+            <div class="card">1</div>
+            <div class="card">2</div>
+            <div class="card">3</div>
+            <div class="card rebalanced">4</div>
+            <div class="card rebalanced">5</div>
+            <div class="card">6</div>
+            <div class="card">7</div>
+        </smart-grid>
+    </section>
+
+    <!-- Example 7: Responsive min-width -->
+    <section>
+        <h2>Responsive with min-width</h2>
+        <p class="info">
+            Using <code>--smart-grid-min-width: 25ch</code> — resize your browser to see rebalancing
+        </p>
+
+        <smart-grid columns="3" class="demo-grid" style="--smart-grid-min-width: 25ch;">
+            <div class="card">
+                <strong>Getting Started</strong>
+                <p style="margin: 0.5rem 0 0; font-weight: 400; font-size: 0.875rem;">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+            </div>
+            <div class="card">
+                <strong>Configuration</strong>
+                <p style="margin: 0.5rem 0 0; font-weight: 400; font-size: 0.875rem;">Duis aute irure dolor in reprehenderit in voluptate velit.</p>
+            </div>
+            <div class="card">
+                <strong>API Reference</strong>
+                <p style="margin: 0.5rem 0 0; font-weight: 400; font-size: 0.875rem;">Ut enim ad minim veniam, quis nostrud exercitation.</p>
+            </div>
+            <div class="card">
+                <strong>Examples</strong>
+                <p style="margin: 0.5rem 0 0; font-weight: 400; font-size: 0.875rem;">Curabitur pretium tincidunt lacus. Nulla gravida orci.</p>
+            </div>
+            <div class="card">
+                <strong>FAQ</strong>
+                <p style="margin: 0.5rem 0 0; font-weight: 400; font-size: 0.875rem;">Nullam varius, turpis et commodo pharetra.</p>
+            </div>
+        </smart-grid>
+    </section>
+
+    <!-- Playground -->
+    <section class="playground">
+        <h2>Playground</h2>
+        <p class="info">Experiment with all options. Click items to change their size.</p>
+
+        <div class="playground-controls">
+            <div class="control-row">
+                <div class="control-group">
+                    <label for="columns-slider">Columns <output id="columns-value">3</output></label>
+                    <input type="range" id="columns-slider" min="1" max="6" value="3">
+                </div>
+
+                <div class="control-group">
+                    <label for="items-slider">Items <output id="items-value">7</output></label>
+                    <input type="range" id="items-slider" min="1" max="15" value="7">
+                </div>
+
+                <div class="control-group">
+                    <label for="gap-slider">Gap <output id="gap-value">12px</output></label>
+                    <input type="range" id="gap-slider" min="0" max="40" value="12">
+                </div>
+
+                <div class="control-group">
+                    <label for="minwidth-slider">Min-width (sm) <output id="minwidth-value">off</output></label>
+                    <input type="range" id="minwidth-slider" min="0" max="300" value="0">
+                </div>
+
+                <div class="control-group">
+                    <label for="minwidth-md-slider">Min-width (md) <output id="minwidth-md-value">off</output></label>
+                    <input type="range" id="minwidth-md-slider" min="0" max="400" value="0">
+                </div>
+
+                <div class="control-group">
+                    <label for="minwidth-lg-slider">Min-width (lg) <output id="minwidth-lg-value">off</output></label>
+                    <input type="range" id="minwidth-lg-slider" min="0" max="500" value="0">
+                </div>
+            </div>
+
+            <div class="control-row">
+                <div class="control-group">
+                    <label>Fill</label>
+                    <div class="toggle" id="fill-toggle">
+                        <button data-value="equal-extra" aria-selected="true">equal-extra</button>
+                        <button data-value="none" aria-selected="false">none</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Fill-last</label>
+                    <div class="toggle" id="fill-last-toggle">
+                        <button data-value="" aria-selected="true">inherit</button>
+                        <button data-value="equal-extra" aria-selected="false">equal-extra</button>
+                        <button data-value="none" aria-selected="false">none</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <smart-grid id="playground-grid" columns="3" class="demo-grid playground-grid" style="--smart-grid-gap: 12px;"></smart-grid>
+    </section>
+    </main>
+
+    <footer>
+        <a href="https://github.com/wazum/smart-grid">View on GitHub</a>
+    </footer>
+
+    <script type="module" src="dist/smart-grid.js"></script>
+    <script>
+        document.querySelectorAll('.toggle').forEach(toggle => {
+            const target = toggle.dataset.target
+            const buttons = toggle.querySelectorAll('button')
+            const modes = Array.from(buttons).map(b => b.dataset.mode)
+
+            buttons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    buttons.forEach(b => b.setAttribute('aria-selected', 'false'))
+                    btn.setAttribute('aria-selected', 'true')
+
+                    modes.forEach(mode => {
+                        const el = document.getElementById(target + '-' + mode)
+                        if (el) el.hidden = mode !== btn.dataset.mode
+                    })
+                })
+            })
+        })
+
+        // Playground functionality
+        const playground = {
+            grid: null,
+            itemSizes: [],
+
+            init() {
+                this.grid = document.getElementById('playground-grid')
+                if (!this.grid) return
+
+                this.bindSliders()
+                this.bindToggles()
+                this.renderItems(7)
+            },
+
+            bindSliders() {
+                const columnsSlider = document.getElementById('columns-slider')
+                const columnsValue = document.getElementById('columns-value')
+                columnsSlider.addEventListener('input', () => {
+                    columnsValue.textContent = columnsSlider.value
+                    this.grid.setAttribute('columns', columnsSlider.value)
+                })
+
+                const itemsSlider = document.getElementById('items-slider')
+                const itemsValue = document.getElementById('items-value')
+                itemsSlider.addEventListener('input', () => {
+                    itemsValue.textContent = itemsSlider.value
+                    this.renderItems(parseInt(itemsSlider.value))
+                })
+
+                const gapSlider = document.getElementById('gap-slider')
+                const gapValue = document.getElementById('gap-value')
+                gapSlider.addEventListener('input', () => {
+                    const px = gapSlider.value
+                    gapValue.textContent = px + 'px'
+                    this.grid.style.setProperty('--smart-grid-gap', px + 'px')
+                })
+
+                this.bindMinWidthSlider('minwidth-slider', 'minwidth-value', '--smart-grid-min-width')
+                this.bindMinWidthSlider('minwidth-md-slider', 'minwidth-md-value', '--smart-grid-min-width-medium')
+                this.bindMinWidthSlider('minwidth-lg-slider', 'minwidth-lg-value', '--smart-grid-min-width-large')
+            },
+
+            bindMinWidthSlider(sliderId, valueId, cssVar) {
+                const slider = document.getElementById(sliderId)
+                const value = document.getElementById(valueId)
+                slider.addEventListener('input', () => {
+                    const px = parseInt(slider.value)
+                    if (px === 0) {
+                        value.textContent = 'off'
+                        this.grid.style.removeProperty(cssVar)
+                    } else {
+                        value.textContent = px + 'px'
+                        this.grid.style.setProperty(cssVar, px + 'px')
+                    }
+                })
+            },
+
+            bindToggles() {
+                document.querySelectorAll('#fill-toggle button').forEach(btn => {
+                    btn.addEventListener('click', () => this.selectToggle('fill-toggle', btn, 'fill'))
+                })
+
+                document.querySelectorAll('#fill-last-toggle button').forEach(btn => {
+                    btn.addEventListener('click', () => this.selectToggle('fill-last-toggle', btn, 'fill-last'))
+                })
+            },
+
+            selectToggle(toggleId, selectedBtn, attr) {
+                const toggle = document.getElementById(toggleId)
+                toggle.querySelectorAll('button').forEach(b => b.setAttribute('aria-selected', 'false'))
+                selectedBtn.setAttribute('aria-selected', 'true')
+
+                const value = selectedBtn.dataset.value
+                if (value) {
+                    this.grid.setAttribute(attr, value)
+                } else {
+                    this.grid.removeAttribute(attr)
+                }
+            },
+
+            renderItems(count) {
+                const existingSizes = this.itemSizes.slice(0, count)
+                this.grid.innerHTML = ''
+                this.itemSizes = []
+
+                for (let i = 1; i <= count; i++) {
+                    const size = existingSizes[i - 1] || null
+                    this.itemSizes.push(size)
+
+                    const item = document.createElement('div')
+                    item.className = 'card'
+                    if (size) item.dataset.size = size
+
+                    const sizeLabel = size ? size.slice(0, 2) : 'sm'
+                    item.innerHTML = `
+                        <span class="item-num">${i}</span>
+                        <span class="item-size">${sizeLabel}</span>
+                    `
+
+                    item.addEventListener('click', () => this.cycleSize(item, i - 1))
+                    this.grid.appendChild(item)
+                }
+            },
+
+            cycleSize(item, index) {
+                const sizes = [null, 'medium', 'large']
+                const current = this.itemSizes[index]
+                const nextIndex = (sizes.indexOf(current) + 1) % sizes.length
+                const next = sizes[nextIndex]
+
+                this.itemSizes[index] = next
+
+                if (next) {
+                    item.dataset.size = next
+                    item.querySelector('.item-size').textContent = next.slice(0, 2)
+                } else {
+                    delete item.dataset.size
+                    item.querySelector('.item-size').textContent = 'sm'
+                }
+            }
+        }
+
+        playground.init()
+    </script>
+</body>
+</html>

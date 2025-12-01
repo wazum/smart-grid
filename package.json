@@ -1,0 +1,50 @@
+{
+  "name": "@wazum/smart-grid",
+  "version": "0.0.1",
+  "description": "Smart CSS Grid web component with auto-rebalancing",
+  "author": "Wolfgang Klinger <wolfgang@wazum.com>",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/smart-grid.js",
+  "types": "dist/smart-grid.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/smart-grid.js",
+      "types": "./dist/smart-grid.d.ts"
+    },
+    "./styles": "./dist/smart-grid.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && tsc --emitDeclarationOnly",
+    "build:demo": "npm run build && cp -r dist docs/",
+    "preview": "npm run build:demo && npx serve docs -p 4173",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "npm run build:demo && playwright test --reporter=list",
+    "test:e2e:update": "npm run build:demo && playwright test --update-snapshots --reporter=list"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.1",
+    "@vitest/coverage-v8": "^2.1.8",
+    "jsdom": "^25.0.1",
+    "resize-observer-polyfill": "^1.5.1",
+    "sass-embedded": "^1.83.0",
+    "serve": "^14.2.4",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5",
+    "vitest": "^2.1.8"
+  },
+  "keywords": [
+    "web-component",
+    "css-grid",
+    "layout",
+    "responsive",
+    "grid",
+    "rebalancing"
+  ]
+}

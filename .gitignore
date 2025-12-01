@@ -1,0 +1,12 @@
+node_modules/
+dist/
+docs/dist/
+coverage/
+*.tsbuildinfo
+.DS_Store
+
+# Playwright
+test-results/
+playwright-report/
+.last-run.json
+blob-report/

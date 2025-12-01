@@ -1,0 +1,9 @@
+smart-grid {
+    display: grid;
+    gap: var(--smart-grid-gap, 1rem);
+    grid-template-columns: repeat(var(--grid-columns, var(--columns, 3)), 1fr);
+
+    > * {
+        min-width: 0;
+    }
+}
