@@ -122,6 +122,25 @@
             font-size: 0.875em;
         }
 
+        .usage-code {
+            background: #1e293b;
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .usage-code pre {
+            margin: 0;
+            color: #e2e8f0;
+            font-size: 0.8125rem;
+            line-height: 1.7;
+        }
+
+        .usage-code .tag { color: #7dd3fc; }
+        .usage-code .attr { color: #fda4af; }
+        .usage-code .val { color: #86efac; }
+
         footer {
             margin-top: 3rem;
             padding-top: 1.5rem;
@@ -290,6 +309,24 @@
     <main>
     <h1>SmartGrid</h1>
     <p class="subtitle">Auto-rebalancing CSS Grid to avoid orphan items.</p>
+
+    <!-- Usage -->
+    <section>
+        <h2>Usage</h2>
+        <div class="usage-code">
+            <pre><span class="tag">&lt;script</span> <span class="attr">type</span>=<span class="val">"module"</span> <span class="attr">src</span>=<span class="val">"smart-grid.js"</span><span class="tag">&gt;&lt;/script&gt;</span>
+
+<span class="tag">&lt;smart-grid</span> <span class="attr">columns</span>=<span class="val">"3"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;div&gt;</span>Item 1<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div&gt;</span>Item 2<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div&gt;</span>Item 3<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div&gt;</span>Item 4<span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/smart-grid&gt;</span></pre>
+        </div>
+        <p class="info">
+            Include the script, then use <code>&lt;smart-grid&gt;</code> with a <code>columns</code> attribute.
+        </p>
+    </section>
 
     <!-- Example 1: 4 items -->
     <section>
